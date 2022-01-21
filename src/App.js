@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+const express = require("express");
+const mongoose = require ("mongoose");
+const app= express();
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+app.use(express.urlencoded({extended:true}));
 
-export default App;
+mongoose.connect("mogodb://localhost:27017/keeperDB");
+
+
+const userSchema= new mongoose.Schema({
+    userEmail: String,
+    userPass: String,
+    userFullName: String
+})
+
+const User = mongoose.model("User",userSchema);
+
+app.post("/register",(req,res)=>{
+    const userFullName = req.body.registerFullName;
+    const userEmail=req.body.registerEmail;
+    const userPassword=req.body.registerPassword;
+    const newUser = new User({
+        userEmail: userEmail,
+        userPass: userPassword,
+        userFullName: userFullName
+    })
+    newUser.save((err)=>{
+        if (!err) {
+            res.redirect("/")
+        }else{
+            console.log(err);
+        }
+    });
+})
+
+
+app.listen(3000,()=> {
+    console.log("started successfully");
+})
